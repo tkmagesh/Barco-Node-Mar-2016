@@ -1,0 +1,16 @@
+{
+  "name": "05-appserver",
+  "version": "1.0.0",
+  "description": "a sample web application in node.js",
+  "main": "program.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "web",
+    "app",
+    "node"
+  ],
+  "author": "Magesh K",
+  "license": "ISC"
+}
