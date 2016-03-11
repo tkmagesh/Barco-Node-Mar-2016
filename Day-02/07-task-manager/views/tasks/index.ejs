@@ -1,0 +1,23 @@
+<h1>Task Manager</h1>
+<hr>
+<style>
+	.stats{
+		font-size: 18pt;
+	}
+	.closed{
+		color : red;
+		text-decoration: line-through;
+		font-style: italic;
+	}
+
+</style>
+<div class="stats">
+	<span class="closed"><%= stats.closedCount %></span>
+	<span> / </span>
+	<span><%= stats.totalCount %></span>
+</div>
+<ol>
+	<% for(var i=0; i<list.length; i++) { %>
+	<li> <%= list[i].name %> </li>
+	<% } %>
+</ol>
