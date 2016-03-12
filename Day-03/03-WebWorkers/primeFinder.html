@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style type="text/css">
+	progress{
+		display : block;
+	}
+	</style>
+	<script>
+	(function(){
+		window.addEventListener("DOMContentLoaded", init);
+		function init(){
+			var btnFindPrimes = document.getElementById("btnFindPrimes");
+			btnFindPrimes.addEventListener("click", onBtnFindPrimesClick);
+		}
+		var workerCount = 0;
+		function onBtnFindPrimesClick(){
+			var start = parseInt(document.getElementById("txtStart").value, 10),
+				end = parseInt(document.getElementById("txtEnd").value, 10);
+			workerCount = parseInt(document.getElementById("txtWorkerCount").value, 10);
+			var oneSet = (end-start)/workerCount;
+			for(var i=1; i<=workerCount; i++){
+				 var localStart = start + (oneSet * (i-1)),
+					localEnd = localStart + oneSet,
+					workerData = {
+						id : i,
+						start : localStart,
+						end : localEnd
+					};
+				console.log(workerData);
+				var worker = new Worker("primeFinderWorker.js");
+				worker.addEventListener("message", onWorkerMessage);
+				
+				var workerProgress = document.createElement("progress");
+				workerProgress.setAttribute("worker-id", i);
+				workerProgress.min =0;
+				workerProgress.max = 100;
+				workerProgress.value = 0;
+				document.getElementById("divProgress").appendChild(workerProgress);
+				worker.postMessage(workerData);
+			}
+		}
+
+		function onWorkerMessage(evtArg){
+			var workerData = evtArg.data;
+			var progress = document.querySelector("progress[worker-id='" + workerData.id + "']");
+			progress.value = workerData.percentCompleted;
+			if (workerData.type === 'completed'){
+				reportCompletion(workerData.id, workerData.primeCount);
+			}
+		}
+
+		var completionCount = 0,
+			totalPrimeCount = 0;
+		function reportCompletion(id, primeCount){
+			++completionCount;
+			totalPrimeCount += primeCount;
+			var msg = 'Reported threads = ' + completionCount + ' , Total Prime # = ' + totalPrimeCount;
+			document.getElementById("divMessages").innerHTML = msg;
+		}
+	})();
+	</script>
+</head>
+<body>
+	<label for="">Start :</label>
+	<input type="text" name="" id="txtStart">
+	<label for="">End :</label>
+	<input type="text" name="" id="txtEnd">
+	<label for="">No of Workers :</label>
+	<input type="text" name="" id="txtWorkerCount">
+	<input type="button" value="Find Primes" id="btnFindPrimes">
+	<div id="divProgress"></div>
+	<div id="divMessages"></div>
+</body>
+</html>
