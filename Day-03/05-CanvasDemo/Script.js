@@ -1,11 +1,14 @@
 
 function drawRectangle() {
     var elem = document.getElementById('canvas');
+    var canvas = elem.getContext('2d');
+    canvas.fillStyle = "red";
+    canvas.fillRect(50,50,150,150);
     canvas = elem.getContext('2d');
     canvas.strokeRect(100, 100, 120, 120);
-	canvas.fillStyle = "red";
+	/*canvas.fillStyle = "red";
     canvas.fillRect(110, 110, 100, 100);
-    canvas.clearRect(120, 120, 80, 80);
+    canvas.clearRect(120, 120, 80, 80);*/
 }
 
 function drawRectangleWithColor() {
@@ -163,7 +166,7 @@ function circlesWithArc() {
         window.addEventListener('mousemove', animation, false);
     }
     function animation(e) {
-        canvas.clearRect(0, 0, 300, 500);
+        //canvas.clearRect(0, 0, 300, 500);
         var xmouse = e.clientX;
         var ymouse = e.clientY;
         var xcenter = 220;
