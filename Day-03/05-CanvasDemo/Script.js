@@ -166,7 +166,7 @@ function circlesWithArc() {
         window.addEventListener('mousemove', animation, false);
     }
     function animation(e) {
-        //canvas.clearRect(0, 0, 300, 500);
+        canvas.clearRect(0, 0, 300, 500);
         var xmouse = e.clientX;
         var ymouse = e.clientY;
         var xcenter = 220;
