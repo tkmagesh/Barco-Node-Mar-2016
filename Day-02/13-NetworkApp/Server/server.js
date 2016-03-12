@@ -13,16 +13,7 @@ if (!fileName || !fs.existsSync(file)){
 }
 
 var server = net.createServer(function(connection){
-    connection.on("error", function(){
-        console.log("connection error");
-    });
-    console.log("a new connection is established");
-    var output = {
-        type : "watching",
-        filename : file
-    };
-    connection.write(JSON.stringify(output));
-    fs.watchFile(file, function(){
+    var listener = function(){
         var output = {
             type : "change",
             filename : file,
@@ -31,7 +22,24 @@ var server = net.createServer(function(connection){
 
         var outputAsString = JSON.stringify(output);
         connection.write(outputAsString);
+    };
+    connection.on("error", function(){
+        console.log("connection error");
+        fs.unwatchFile(file, listener);
     });
+
+    connection.on("close", function(){
+        console.log("connection closed");
+        fs.unwatchFile(file, listener);
+    });
+
+    console.log("a new connection is established");
+    var output = {
+        type : "watching",
+        filename : file
+    };
+    connection.write(JSON.stringify(output));
+    fs.watchFile(file, listener);
 });
 
 server.listen(8080);

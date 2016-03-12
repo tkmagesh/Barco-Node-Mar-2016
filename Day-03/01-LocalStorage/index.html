@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Local Storage</title>
+	<style type="text/css">
+	.completed{
+		color : red;
+		text-decoration: line-through;
+	}
+	</style>
+	<script>
+		/* window.localStorage */
+		/*
+			key/value store
+			key should be unique
+			value should be a string
+			10MB
+			Same origin policy
+			APIs
+			====
+			setItem(k,v)
+			getItem(k) //=> v
+			removeItem(k)
+			clear()
+			key(index) //=> key at index
+			length
+		*/
+
+	</script>
+	<script>
+	(function(){
+		window.addEventListener("DOMContentLoaded", init);
+		var txtTask = null,
+			olTaskList = null;
+		
+		var maxTaskId = 0;
+		var storage = window.localStorage;
+
+		function init(){
+			var btnAddTask = document.getElementById("btnAddTask");
+			btnAddTask.addEventListener("click", onBtnAddTaskClick);
+
+			var btnRemoveCompleted = document.getElementById("btnRemoveCompleted");
+			btnRemoveCompleted.addEventListener("click", onBtnRemoveCompletedClick);
+
+			txtTask = document.getElementById("txtTask");
+			olTaskList = document.getElementById("olTaskList");
+
+			window.addEventListener("storage", syncList)
+
+			for(var i=0; i<storage.length; i++){
+				var task = JSON.parse(storage.getItem(storage.key(i)));
+				maxTaskId = task.id > maxTaskId ? task.id : maxTaskId;
+				addTaskToList(task);
+			}
+		}
+		function syncList(evtArg){
+			console.log("syncList function triggered");
+			if (evtArg.oldValue === null && evtArg.newValue !== null){ /*new*/
+				var newTask = JSON.parse(evtArg.newValue);
+				addTaskToList(newTask);
+				maxTaskId = newTask.id;
+				return;
+			}
+			if (evtArg.oldValue !== null && evtArg.newValue === null){
+				var taskItem = olTaskList.querySelector("[task-id='" + evtArg.key + "']");
+				taskItem.remove();
+				return ;
+			}
+			var taskItem = olTaskList.querySelector("[task-id='" + evtArg.key + "']");
+			var task = JSON.parse(evtArg.newValue);
+			taskItem.innerHTML = task.name;
+			taskItem.setAttribute("task-id", task.id);
+			if (task.isCompleted){
+				taskItem.classList.add("completed");
+			} else {
+				taskItem.classList.remove("completed");
+			}
+
+		}
+
+		function onBtnAddTaskClick(){
+			var newTaskName = txtTask.value;
+			var newTaskId = ++maxTaskId;
+			var newTask = {
+				id : newTaskId,
+				name : newTaskName,
+				isCompleted : false
+			};
+			storage.setItem(newTask.id, JSON.stringify(newTask));
+			addTaskToList(newTask);
+		}
+		function addTaskToList(task){
+			var newTaskItem = document.createElement("li");
+			newTaskItem.innerHTML = task.name;
+			newTaskItem.setAttribute("task-id", task.id);
+			if (task.isCompleted){
+				newTaskItem.classList.add("completed");
+			}
+			newTaskItem.addEventListener("click", onTaskItemClick);
+
+			olTaskList.appendChild(newTaskItem);
+		}
+
+		function onTaskItemClick(){
+			var id = this.getAttribute("task-id");
+			var task = JSON.parse(storage.getItem(id));
+			task.isCompleted = !task.isCompleted;
+			storage.setItem(task.id, JSON.stringify(task));
+			this.classList.toggle("completed");
+		}
+
+		function onBtnRemoveCompletedClick(){
+			for(var i = olTaskList.children.length-1; i>=0; i--){
+				var taskItem = olTaskList.children[i];
+				if (taskItem.classList.contains("completed")){
+					var taskId = taskItem.getAttribute("task-id");
+					storage.removeItem(taskId);
+					taskItem.remove();
+				}
+			}
+		}
+	})()
+	</script>
+</head>
+<body>
+	<h1>Task Manager</h1>
+	<hr>
+	<label for="">Task :</label>
+	<input type="text" name="" id="txtTask">
+	<input type="button" value="Add Task" id="btnAddTask">
+	<input type="button" id="btnRemoveCompleted" value="Remove Completed">
+	<ol id="olTaskList"></ol>
+</body>
+</html>
